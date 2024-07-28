@@ -1,0 +1,61 @@
+datasource db {
+  provider = "sqlserver"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Sku {
+  id                String             @id @default(cuid())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  shelfLife         Int?
+  name              String?
+  pos               Po[]
+  productionRecords ProductionRecord[]
+}
+
+model UserInput {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  poNumber   String?
+  runningSku String?
+}
+
+model Po {
+  id                String             @id @default(cuid())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  numberField       String?
+  sku               Sku?               @relation(fields: [skuId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  skuId             String?
+  productionRecords ProductionRecord[]
+}
+
+model ProductionRecord {
+  id                 String    @id @default(cuid())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  productionDateTime DateTime?
+  expiryDate         DateTime?
+  batchNumber        String?
+  sku                Sku?      @relation(fields: [skuId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  skuId              String?
+  po                 Po?       @relation(fields: [poId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  poId               String?
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  firstName String?
+  lastName  String?
+  username  String   @unique
+  email     String?  @unique
+  password  String
+  roles     Json
+}
